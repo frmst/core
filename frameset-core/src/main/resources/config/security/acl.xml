@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+      http://www.springframework.org/schema/security
+      http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+    <!-- Declare an acl service -->
+    <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="lookupStrategy"/>
+        <constructor-arg ref="aclCache"/>
+        <property name="classIdentityQuery" value="SELECT @@IDENTITY"/>
+        <property name="sidIdentityQuery" value="SELECT @@IDENTITY"/>		
+    </bean>
+ 
+    <!-- Declare a lookup strategy-->
+    <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+        <constructor-arg ref="dataSource"/>
+        <constructor-arg ref="aclCache"/>
+        <constructor-arg ref="aclAuthorizationStrategy"/>
+        <constructor-arg ref="permissionGrantingStrategy"/>
+        <property name="permissionFactory" ref="permissionFactory"/>
+    </bean>
+    
+    <!-- Declare permission evaluator -->
+    <bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
+        <constructor-arg ref="aclService"/>
+        <property name="permissionFactory" ref="permissionFactory"/>
+    </bean>
+ 
+    <!-- Declare permission factory -->
+    <bean id="permissionFactory" class="pl.exsio.frameset.security.acl.permission.FramesetPermissionFactory" />
+
+    <!-- Declare permission granting strategy -->
+    <bean id="permissionGrantingStrategy" class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy" >
+        <constructor-arg>
+            <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
+        </constructor-arg>
+    </bean>
+
+    <!-- Declare an acl cache-->   
+    <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+        <constructor-arg>
+            <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+                <property name="cacheManager">
+                    <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+                </property>
+                <property name="cacheName" value="aclCache"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- Declare an acl authorization strategy-->
+    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                    <constructor-arg value="${acl.grantor_role:ROLE_ADMIN}"/>
+                </bean>
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                    <constructor-arg value="${acl.grantor_role:ROLE_ADMIN}"/>
+                </bean>
+                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                    <constructor-arg value="${acl.grantor_role:ROLE_ADMIN}"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+    
+    <!-- Declare permission map provider -->
+    <bean id="permissionMapProvider" class="pl.exsio.frameset.security.acl.permission.map.provider.PermissionMapProviderImpl" >
+    </bean>
+    
+    <bean id="securityContextProvider" class="pl.exsio.frameset.security.context.provider.SecurityContextProvider" >
+         <property name="factory" ref="securityContextFactory"/>
+    </bean>
+    
+    <bean id="securityContextFactory" class="pl.exsio.frameset.security.context.factory.SecurityContextFactoryImpl" >
+         <property name="acl" ref="aclManager"/>
+    </bean>
+  
+</beans>

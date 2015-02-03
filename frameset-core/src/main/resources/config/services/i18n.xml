@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+    
+    <bean id="translator" class="pl.exsio.jin.translator.TranslatorImpl">
+        <property name="registerdFiles">
+            <map>
+                <entry key="classpath:translations/core.en.yml" value="en"/> 
+                <entry key="classpath:translations/core.pl.yml" value="pl"/> 
+            </map>
+        </property>
+        <property name="localeProviderProvider" ref="localeProviderProvider" />
+        <property name="loader" ref="translationFileLoader" />
+        <property name="pluralizators" ref="pluralizatorRegistry" />
+        <property name="prefixManager" ref="translationPrefixManager" />
+    </bean>
+    
+    <bean id="localeProviderProvider" class="pl.exsio.frameset.i18n.locale.provider.provider.ApplicationContextLocaleProviderProviderImpl">
+    </bean>
+    
+    <bean id="localeProvider" class="pl.exsio.jin.locale.provider.DefaultLocaleProviderImpl">
+        <constructor-arg value="${app.default_lang:en}" />
+    </bean>
+    
+    <bean id="translationPrefixManager" class="pl.exsio.jin.translationprefix.manager.TranslationPrefixManagerImpl"/>
+    
+    <bean id="pluralizatorRegistry" class="pl.exsio.jin.pluralizator.registry.TranslationPluralizatorRegistryImpl">
+        <property name="pluralizators">
+            <map>
+                <entry key="pl" value-ref="polishPluralizator" />
+                <entry key="en" value-ref="englishPluralizator" />
+            </map>
+        </property>
+    </bean>
+
+    <bean id="polishPluralizator" class="pl.exsio.jin.pluralizator.PolishTranslationPluralizatorImpl"/>
+    
+    <bean id="englishPluralizator" class="pl.exsio.jin.pluralizator.EnglishTranslationPluralizatorImpl"/>
+    
+    <bean id="translationFileLoader" class="pl.exsio.jin.file.loader.YamlTranslationFileLoaderImpl">
+        <property name="locator" ref="translationFileLocator"/>
+    </bean>
+    
+    <bean id="translationFileLocator" class="pl.exsio.frameset.i18n.file.locator.ApplicationContextTranslationFileLocatorImpl" />
+    
+    <bean id="translationContext" class="pl.exsio.jin.translationcontext.TranslationContext">
+        <property name="translator" ref="translator" />
+    </bean>
+    
+</beans>

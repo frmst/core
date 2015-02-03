@@ -1,0 +1,1 @@
+ALTER TABLE `security_users` ADD `phone_no` varchar(255) NULL;
