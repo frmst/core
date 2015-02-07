@@ -230,14 +230,14 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>pl.exsio</groupId>
             <artifactId>NestedJ</artifactId>
             <version>1.0.8.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>pl.exsio</groupId>
+            <artifactId>jin</artifactId>
+            <version>1.0.RELEASE</version>
         </dependency>
     </dependencies>
     <build>
